@@ -15,12 +15,17 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "write_flash.h"
 
 
+#define SSID_ "Serhat3"
+#define	PASS_ "-trworld19962009-"
 
+#define NAME_	"serhat"
+#define SURNAME_	"sefer"
 //------------------------------------------------
 
-#define RX_BUFFER_SIZE 100
+#define RX_BUFFER_SIZE 1500
 #define TX_BUFFER_SIZE 1500
 // -------- LED PINLERI ---------
 
@@ -38,7 +43,7 @@
 void ESP_Init(void);
 void ESP_Read(void);
 void ESP_Login(void);
-void ESP_TCP(void);
+void ESP_TCP(char*name,char*surname);
 void clear_response(void);
 void clear_rcvbuffer(void);
 char* Send_ESP(char*data,int delay);
@@ -46,6 +51,7 @@ char* Send_ESP_Conc(char*data,int length,int delay);
 char* Send_ESP_Connect(const char*ssid,const char*pass,int delay);
 void Close_Connection(void);
 char* Get_IP(void);
+void alarm(char*medicine,char*time,char*section);
 
 
 

@@ -41,3 +41,4 @@ final_project\esp8266.o: ../Inc/esp8266.h
 final_project\esp8266.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 final_project\esp8266.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 final_project\esp8266.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+final_project\esp8266.o: ../Inc/write_flash.h

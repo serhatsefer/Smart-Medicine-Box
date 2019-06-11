@@ -17,16 +17,20 @@
 #include "esp8266.h"
 
 // --- Baglanilacak WIFI Aginin SSID Ve Sifresi ---
-const char* ssid="Lenovo K6";
-const char* pass="19962009";
+const char* ssid=SSID_;
+const char* pass=PASS_;
 
 // --- Daha Sonra Kullanilacak Degiskenler Tanimlandi. ---
-char Rx_Buffer[RX_BUFFER_SIZE],buffer[TX_BUFFER_SIZE],veriuzunluk[4],Parser[RX_BUFFER_SIZE];
-char ip_[RX_BUFFER_SIZE],ip_buf[15],medicine[100],time[10],section[5];
+char Rx_Buffer[RX_BUFFER_SIZE],buffer[TX_BUFFER_SIZE],veriuzunluk[4],Parser[RX_BUFFER_SIZE],Rec[RX_BUFFER_SIZE];
+char ip_[RX_BUFFER_SIZE],ip_buf[15],medicine[100],time[10],section[5],first_m[50],second_m[50],third_m[50],fourth_m[50];
+char *medicine_name[4],*medicine_time[4],*medicine_stat[4],*medicine_pin[4];
 uint8_t Rx_data = '\0';
 char *htmlcode,*read_ok,*stat,*reset,*login,*successful = "";
-char *connection,*ip,*parse = "";
+char html[1500];
+char *connection,*ip,*parse,*check_html = "";
 int status_wifi,last,uzunluk,check,Rx_indx= 0;
+
+
 //-------------------------------------------
 
 extern UART_HandleTypeDef huart2;
@@ -45,16 +49,19 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef*huart)
 		}
 		else
 		{
-			stat 	 = strstr(Rx_Buffer, "WIFI DISCONNECT");
-			reset  = strstr(Rx_Buffer, "/reset HTTP/1.1");
-			parse =  strstr(Rx_Buffer,"/send");
-			ip = 		 strstr(Rx_Buffer,"STAIP");
-			
+			stat 	 				= strstr(Rx_Buffer,"WIFI DISCONNECT");
+			reset  				= strstr(Rx_Buffer,"/reset HTTP/1.1");
+			parse  				= strstr(Rx_Buffer,"/send");
+			ip 		 				= strstr(Rx_Buffer,"STAIP");
+			check_html 		= strstr(Rx_Buffer,"####");
 			if(parse != NULL){
 				strcpy(Parser,Rx_Buffer);
 			}
 			else if(ip != NULL){
 				strcpy(ip_,Rx_Buffer);
+			}
+			else if(check_html != NULL){
+				strcpy(Rec,Rx_Buffer);
 			}
 			
 			Rx_Buffer[Rx_indx-1] = '\0';
@@ -130,7 +137,7 @@ char* Get_IP(void)
 	{
 		p = strtok(ip_,"\"");
 		p = strtok(NULL,"\"");
-		printf("IP:%s",p);
+		printf("IP:%s\n",p);
 		sprintf(ip_buf,"%s",p);
 		i = 1;
 	}
@@ -204,6 +211,12 @@ char* Get_IP(void)
 	while(Send_ESP("AT+CIPSTO=5000",500) == NULL);
 	clear_rcvbuffer();
 	send_ready_lcd(ip_buf);
+//	uint32_t check_data;
+	//FLASH_WRITE(0x08003000,0x00);
+	//check_data = FLASH_READ(0x080E0000);
+	//if(check_data != 1)
+	ESP_TCP(NAME_,SURNAME_);
+
 	//  *********** LCD'ye Cihazin Hazir Oldugunu Yazdirir. ***********
 	
 }
@@ -337,28 +350,159 @@ void ESP_Login(void)
 }
 
 
-void ESP_TCP(void){
+void ESP_TCP(char*name,char*surname){
+	char temp[150];
+	char*token;
+	sprintf(temp,"GET /readdata.php?n=%s&s=%s HTTP/1.1\r\nHost: serhatesp.dx.am\r\n\r\n",name,surname);
+	//printf("TEMP:%s\n",temp);
+	strcat(html,temp);
+	//htmlcode = "GET /readdata.php?n=serhat&s=sefer HTTP/1.1\r\nHost: serhatesp.dx.am\r\n\r\n";
+	//printf("HTMLCODE:%s",html);
+	Send_ESP("AT+CIPSTART=2,\"TCP\",\"serhatesp.dx.am\",80",10000);
 
-	htmlcode="\
-	GET /writedata.php HTTP/1.0 \r\n\
-	Host: esp8266.rf.gd\r\n\
-	Accept: */*\r\n\
-	Content-Type: application/x-www-form-urlencoded\r\n\
-	Content-Length: 32\r\n\r\n\
-	?n=ayse&s=yilmaz&m=test2&t=104050\
-		";
-
-	Send_ESP("AT+CIPSTART=1,\"TCP\",\"esp8266.rf.gd\",80",100);
-
-	uzunluk = strlen(htmlcode);
-	
-	Send_ESP_Conc("AT+CIPSEND=1,",uzunluk,10);
-	
-	Send_ESP(htmlcode,2000);
-
+	uzunluk = strlen(html);
+	//printf("START:%s\n",Rx_Buffer);
+	Send_ESP_Conc("AT+CIPSEND=2,",uzunluk,100);
+	//printf("SEND:%s",Rx_Buffer);
+	Send_ESP(html,100);
+	//printf("HTML:%s",Rx_Buffer);
 	Close_Connection();
+	
+	
+		token = strtok(Rec,">>");
+		token = strtok(NULL,">>");
+	
+	if(token != NULL)
+	{
+
+		strcpy(first_m,token);
+		token = strtok(NULL,">>");
+		
+	}
+	if(token != NULL)
+	{
+
+		strcpy(second_m,token);
+		token = strtok(NULL,">>");
+		
+	}
+	
+	if(token != NULL)
+	{
+
+		strcpy(third_m,token);
+		token = strtok(NULL,">>");
+
+	}
+	if(token != NULL)
+	{
+		strcpy(fourth_m,token);
 
 
+	}
+		//printf("First:%s\n",first_m);
+		//printf("Second:%s\n",second_m);
+		//printf("Third:%s\n",third_m);
+		//printf("Fourth:%s\n",fourth_m);
+		
+// ***********************************
+	
+	token = strtok(first_m,"|");
+	token = strtok(NULL,"|");
+	token = strtok(NULL,"|");
+	medicine_name[0] = token;
+	token = strtok(NULL,"|");
+	medicine_time[0] = token;
+	token = strtok(NULL,"|");
+	medicine_stat[0] = token;
+	token = strtok(NULL,"|");
+	medicine_pin[0] = token;
+	
+	token = strtok(second_m,"|");
+	token = strtok(NULL,"|");
+	token = strtok(NULL,"|");
+	medicine_name[1] = token;
+	token = strtok(NULL,"|");
+	medicine_time[1] = token;
+	token = strtok(NULL,"|");
+	medicine_stat[1] = token;
+	token = strtok(NULL,"|");
+	medicine_pin[1] = token;
+	
+	token = strtok(third_m,"|");
+	token = strtok(NULL,"|");
+	token = strtok(NULL,"|");
+	medicine_name[2] = token;
+	token = strtok(NULL,"|");
+	medicine_time[2] = token;
+	token = strtok(NULL,"|");
+	medicine_stat[2] = token;
+	token = strtok(NULL,"|");
+	medicine_pin[2] = token;
+	
+	token = strtok(fourth_m,"|");
+	token = strtok(NULL,"|");
+	token = strtok(NULL,"|");
+	medicine_name[3] = token;
+	token = strtok(NULL,"|");
+	medicine_time[3] = token;
+	token = strtok(NULL,"|");
+	medicine_stat[3] = token;
+	token = strtok(NULL,"|");
+	medicine_pin[3] = token;
+
+// ************************************************
+
+for(int i =0;i<4;i++){
+	printf("%d.Medicine Name:%s\n",i,medicine_name[i]);
+	printf("%d.Medicine Time:%s\n",i,medicine_time[i]);
+	printf("%d.Medicine Stat:%s\n",i,medicine_stat[i]);
+	printf("%d.Medicine Pin:%s\n",i,medicine_pin[i]);
+	printf("\n\n");
+}
+
+
+//FLASH_WRITE(0x080E0000,0x01);
+//FLASH_WRITE(0x080E0004,(uint32_t)medicine_name[0]);
+//FLASH_WRITE(0x080E0008,(uint32_t)medicine_time[0]);
+//FLASH_WRITE(0x080E000C,(uint32_t)medicine_stat[0]);
+//FLASH_WRITE(0x080E0010,(uint32_t)medicine_pin[0]);
+
+
+}
+
+
+void alarm(char*medicine,char*time,char*section){
+	printf("ALARM CALDI\n");
+	send_medicine_info(medicine,time,section);
+	
+	if(strncmp(section,"1",1) == 0 ){
+			HAL_GPIO_WritePin(GPIOD,GPIO_PIN_11,GPIO_PIN_SET);
+			openCover(htim1,1);
+			HAL_Delay(1000);
+			closeCover(htim1,1);
+			HAL_GPIO_WritePin(GPIOD,GPIO_PIN_11,GPIO_PIN_RESET);
+		}
+		else if (strncmp(section,"2",1) == 0 ){
+			openCover(htim1,2);
+			HAL_Delay(1000);
+			closeCover(htim1,2);
+		}
+		else if (strncmp(section,"3",1) == 0 ){
+			openCover(htim1,3);
+			HAL_Delay(1000);
+			closeCover(htim1,3);
+		}
+		// buzzeri calistir.
+		for (int i = 0;i<8;i++)
+		{
+			HAL_GPIO_TogglePin(GPIOB,GPIO_PIN_0);
+			HAL_Delay(500);
+		}
+			HAL_GPIO_TogglePin(GPIOB,GPIO_PIN_0);
+			HAL_Delay(1000);
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_0,GPIO_PIN_RESET);
+			send_ready_lcd(ip_buf);
 }
 
 

@@ -3,8 +3,16 @@
 
 #include "stm32f4xx_hal.h"
 
-#define CLOSE_POS			113
-#define OPEN_POS			25
+#define CLOSE_POS1			110
+#define OPEN_POS1				85
+	
+
+#define CLOSE_POS2			100
+#define OPEN_POS2				75
+
+#define CLOSE_POS3			100
+#define OPEN_POS3				75
+
 
 
 

@@ -30,6 +30,7 @@
 #include "esp8266.h"
 #include "write_lcd_func.h"
 #include "printf.h"
+#include <time.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -54,16 +55,18 @@ TIM_HandleTypeDef htim1;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-uint8_t write_time[8] = {0x0,0x13,0x05,0x1B,0x15,0x14,0x00,0x04};
+uint8_t write_time[8] = {0x0,0x13,0x05,0x1B,0x14,0x0A,0x00,0x06};
 uint8_t read_time[10];
 char date_ [20];
 char time_ [20];
 char dhours[2];
 char dminutes[2];
 char dseconds[2];
-int alarm = 1;
 char *aa;
 extern uint8_t Rx_data;
+
+extern char *medicine_name[4],*medicine_time[4],*medicine_stat[4],*medicine_pin[4];
+int isactive[4];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -92,7 +95,10 @@ int main(void)
   /* USER CODE END 1 */
   
 
+
   /* MCU Configuration--------------------------------------------------------*/
+	
+	
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
@@ -123,7 +129,7 @@ int main(void)
 
 	for(int i = 1;i<5;i++)
 		initServo(htim1,i);
-
+	
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -134,10 +140,19 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 			ESP_Read();
-			//DS1302_ReadTimeBurst(read_time);
+			DS1302_ReadTimeBurst(read_time);
 			//sprintf(date_,"%u/0%u/%u",read_time[3],read_time[2],2000+read_time[1]);
-			//sprintf(time_,"%u%u%u",read_time[4],read_time[5],read_time[6]);
-			
+			sprintf(time_,"%02u%02u%02u",read_time[4],read_time[5],read_time[6]);
+		
+		for(int i=0;i<4;i++)
+		{
+		if( (isactive[i] == 0) && (atoi(medicine_time[i]) != 0) &&(atoi(time_) >= atoi(medicine_time[i])))
+		{
+			alarm(medicine_name[i],medicine_time[i],medicine_pin[i]);
+			isactive[i] = 1;
+		}
+	}
+		
 		/*	sprintf(dhours,"%u",read_time[4]);		
 			sprintf(dminutes,"%u",read_time[5]);
 			sprintf(dseconds,"%u",read_time[6]);

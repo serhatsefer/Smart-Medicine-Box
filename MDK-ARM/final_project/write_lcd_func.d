@@ -41,3 +41,4 @@ final_project\write_lcd_func.o: ../Inc/write_lcd_func.h
 final_project\write_lcd_func.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 final_project\write_lcd_func.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 final_project\write_lcd_func.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+final_project\write_lcd_func.o: ../Inc/write_flash.h

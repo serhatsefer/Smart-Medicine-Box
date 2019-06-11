@@ -11,6 +11,7 @@
 "final_project\main.o"
 "final_project\stm32f4xx_it.o"
 "final_project\stm32f4xx_hal_msp.o"
+"final_project\write_flash.o"
 "final_project\stm32f4xx_hal_i2c.o"
 "final_project\stm32f4xx_hal_i2c_ex.o"
 "final_project\stm32f4xx_hal_tim.o"
