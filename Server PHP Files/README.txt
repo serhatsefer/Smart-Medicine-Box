@@ -17,7 +17,7 @@
 @
 @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @
 
-These files uploaded to serhatesp.dx.am
+These files are uploaded to serhatesp.dx.am
 
 
 If you want to upload PHP files in your server, follow these steps:
